@@ -284,13 +284,29 @@ async function fetchSource(source) {
 
 /* ═══════ UI Components ═══════ */
 
-function TopAppBar({ lastRefresh, refreshing, autoRefresh, onAutoRefreshToggle, onRefresh }) {
+function TopAppBar({ lastRefresh, refreshing, autoRefresh, onAutoRefreshToggle, onRefresh, theme, onThemeToggle }) {
   return (
     <header className="header">
       <div className="header-inner">
         <div className="header-top">
           <h1 className="header-title">BNUZ 通知</h1>
           <div className="header-actions">
+            <button
+              className="icon-btn"
+              onClick={onThemeToggle}
+              title={theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'}
+            >
+              {theme === 'dark' ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="5"/>
+                  <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+              )}
+            </button>
             <button
               className={`icon-btn ${autoRefresh ? "icon-btn-active" : ""}`}
               onClick={onAutoRefreshToggle}
@@ -479,6 +495,39 @@ export default function BNUZFeed() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const timerRef = useRef(null);
 
+  const getInitialTheme = () => {
+    const saved = localStorage.getItem('bnuz-theme');
+    if (saved === 'light' || saved === 'dark') return saved;
+    if (window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
+    return 'dark';
+  };
+  const [theme, setTheme] = useState(getInitialTheme);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.setAttribute('data-theme', 'light');
+    } else {
+      root.removeAttribute('data-theme');
+    }
+    localStorage.setItem('bnuz-theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: light)');
+    const handle = (e) => {
+      if (!localStorage.getItem('bnuz-theme')) setTheme(e.matches ? 'light' : 'dark');
+    };
+    mq.addEventListener('change', handle);
+    return () => mq.removeEventListener('change', handle);
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    document.documentElement.classList.add('theme-transitioning');
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 350);
+  }, []);
+
   const fetchAll = useCallback(async (silent = false) => {
     if (!silent) setInitialLoad(true);
     setRefreshing(true);
@@ -537,6 +586,8 @@ export default function BNUZFeed() {
           --text-tertiary: #71717a;
           --text-muted: #52525b;
 
+          --chip-count-bg: rgba(255,255,255,0.1);
+
           --radius-sm: 6px;
           --radius-md: 8px;
           --radius-lg: 12px;
@@ -544,6 +595,34 @@ export default function BNUZFeed() {
 
           --transition-fast: 150ms ease;
           --transition-base: 200ms ease;
+        }
+
+        /* ═══════ Light Theme ═══════ */
+        [data-theme="light"] {
+          --bg-base: #fafafa;
+          --bg-card: #ffffff;
+          --bg-elevated: #f4f4f5;
+          --bg-hover: #e4e4e7;
+          --bg-active: #d4d4d8;
+
+          --border-subtle: #e4e4e7;
+          --border-default: #d4d4d8;
+          --border-strong: #a1a1aa;
+
+          --text-primary: #18181b;
+          --text-secondary: #3f3f46;
+          --text-tertiary: #71717a;
+          --text-muted: #a1a1aa;
+
+          --chip-count-bg: rgba(0,0,0,0.06);
+        }
+
+        html.theme-transitioning,
+        html.theme-transitioning *,
+        html.theme-transitioning *::before,
+        html.theme-transitioning *::after {
+          transition: background-color 0.3s ease, color 0.3s ease,
+                      border-color 0.3s ease !important;
         }
 
         /* ═══════ Reset & Base ═══════ */
@@ -822,7 +901,7 @@ export default function BNUZFeed() {
           border-radius: var(--radius-sm);
           font-size: 11px;
           font-weight: 600;
-          background: rgba(255,255,255,0.1);
+          background: var(--chip-count-bg);
           color: var(--text-secondary);
         }
 
@@ -1060,6 +1139,8 @@ export default function BNUZFeed() {
         autoRefresh={autoRefresh}
         onAutoRefreshToggle={() => setAutoRefresh(!autoRefresh)}
         onRefresh={() => fetchAll(false)}
+        theme={theme}
+        onThemeToggle={toggleTheme}
       />
 
       <SourceGrid sources={SOURCES} status={sourceStatus} />
