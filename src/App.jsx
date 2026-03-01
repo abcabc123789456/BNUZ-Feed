@@ -282,26 +282,33 @@ async function fetchSource(source) {
   return [];
 }
 
-/* ═══════ Material You Components ═══════ */
+/* ═══════ UI Components ═══════ */
 
-function TopAppBar({ lastRefresh, refreshing, autoRefresh, onAutoRefreshToggle, onRefresh }) {
+function TopAppBar({ lastRefresh, refreshing, autoRefresh, onAutoRefreshToggle, onRefresh, theme, onThemeToggle }) {
   return (
-    <header className="top-app-bar">
-      <div className="top-app-bar-container">
-        <div className="top-app-bar-content">
-          <div className="brand">
-            <div className="brand-logo">
-              <span>B</span>
-            </div>
-            <div className="brand-text">
-              <h1 className="headline-small">BNUZ 通知</h1>
-              <p className="body-medium">北京师范大学珠海校区</p>
-            </div>
-          </div>
-          
-          <div className="top-app-bar-actions">
-            <button 
-              className={`icon-button ${autoRefresh ? "selected" : ""}`}
+    <header className="header">
+      <div className="header-inner">
+        <div className="header-top">
+          <h1 className="header-title">BNUZ 通知</h1>
+          <div className="header-actions">
+            <button
+              className="icon-btn"
+              onClick={onThemeToggle}
+              title={theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'}
+            >
+              {theme === 'dark' ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="5"/>
+                  <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+              )}
+            </button>
+            <button
+              className={`icon-btn ${autoRefresh ? "icon-btn-active" : ""}`}
               onClick={onAutoRefreshToggle}
               title={autoRefresh ? "自动刷新开启中" : "自动刷新已关闭"}
             >
@@ -309,8 +316,8 @@ function TopAppBar({ lastRefresh, refreshing, autoRefresh, onAutoRefreshToggle, 
                 <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
               </svg>
             </button>
-            <button 
-              className="icon-button"
+            <button
+              className="icon-btn"
               onClick={onRefresh}
               disabled={refreshing}
             >
@@ -320,22 +327,20 @@ function TopAppBar({ lastRefresh, refreshing, autoRefresh, onAutoRefreshToggle, 
             </button>
           </div>
         </div>
-        
-        <div className="refresh-status">
+        <div className="header-sub">
+          <span>北京师范大学珠海校区</span>
           {refreshing ? (
-            <span className="label-large">
-              <span className="loading-dot"></span>
-              正在更新数据...
-            </span>
+            <>
+              <span className="dot-sep">·</span>
+              <span className="status-loading"><span className="pulse-dot"></span>正在更新</span>
+            </>
           ) : lastRefresh ? (
-            <span className="label-large">
-              <span className="status-indicator"></span>
-              更新于 {lastRefresh.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}
-              {autoRefresh && " · 自动刷新"}
-            </span>
-          ) : (
-            <span className="label-large">准备就绪</span>
-          )}
+            <>
+              <span className="dot-sep">·</span>
+              <span>更新于 {lastRefresh.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}</span>
+              {autoRefresh && <><span className="dot-sep">·</span><span>自动刷新</span></>}
+            </>
+          ) : null}
         </div>
       </div>
     </header>
@@ -344,42 +349,42 @@ function TopAppBar({ lastRefresh, refreshing, autoRefresh, onAutoRefreshToggle, 
 
 function SourceChips({ sources, activeFilter, onFilterChange, notifications }) {
   const allCount = Object.values(notifications).flat().length;
-  
+
   return (
-    <div className="source-chips-container">
-      <div className="source-chips-scroll">
-        <button 
-          className={`chip ${activeFilter === "all" ? "chip-filled" : "chip-outlined"}`}
+    <div className="chips-bar">
+      <div className="chips-scroll">
+        <button
+          className={`chip ${activeFilter === "all" ? "chip-active" : ""}`}
           onClick={() => onFilterChange("all")}
         >
-          <span className="chip-text">全部</span>
-          {allCount > 0 && <span className="chip-badge">{allCount}</span>}
+          <span>全部</span>
+          {allCount > 0 && <span className="chip-count">{allCount}</span>}
         </button>
-        
+
         {sources.map(source => {
           const count = notifications[source.id]?.length || 0;
           const isActive = activeFilter === source.id;
-          
+
           return (
             <button
               key={source.id}
-              className={`chip ${isActive ? "chip-filled" : "chip-outlined"}`}
-              style={isActive ? { 
+              className={`chip ${isActive ? "chip-active" : ""}`}
+              style={isActive ? {
                 background: source.color,
-                color: 'white',
-                borderColor: source.color 
-              } : { 
+                color: '#fff',
+                borderColor: source.color
+              } : {
                 borderColor: `${source.color}40`,
-                color: source.color 
+                color: source.color
               }}
               onClick={() => onFilterChange(isActive ? "all" : source.id)}
             >
-              <span className="chip-dot" style={{ background: isActive ? 'white' : source.color }}></span>
-              <span className="chip-text">{source.short}</span>
+              <span className="chip-dot" style={{ background: isActive ? '#fff' : source.color }}></span>
+              <span>{source.short}</span>
               {count > 0 && (
-                <span className="chip-badge" style={{ 
-                  background: isActive ? 'rgba(255,255,255,0.3)' : `${source.color}20`,
-                  color: isActive ? 'white' : source.color 
+                <span className="chip-count" style={{
+                  background: isActive ? 'rgba(255,255,255,0.25)' : `${source.color}18`,
+                  color: isActive ? '#fff' : source.color
                 }}>
                   {count}
                 </span>
@@ -400,24 +405,16 @@ function SourceGrid({ sources, status }) {
         const isLoading = s === "loading";
         const isError = s === "error";
         const count = typeof s === "number" ? s : 0;
-        
+
         return (
-          <div key={source.id} className={`source-card ${isLoading ? "loading" : ""} ${isError ? "error" : ""}`}>
-            <div className="source-icon" style={{ 
-              background: `${source.color}15`,
-              color: source.color 
-            }}>
-              {source.short[0]}
-            </div>
-            <div className="source-info">
-              <span className="source-name label-medium">{source.short}</span>
-              <span className="source-count headline-small" style={{ color: count > 0 ? source.color : 'inherit' }}>
-                {isLoading ? "···" : isError ? "×" : count}
-              </span>
-            </div>
-            <div className="source-indicator" style={{ 
-              background: isError ? '#EF4444' : count > 0 ? source.color : '#CBD5E1' 
+          <div key={source.id} className="source-card">
+            <div className="source-bar" style={{
+              background: isError ? '#ef4444' : isLoading ? 'var(--border-default)' : count > 0 ? source.color : 'var(--border-subtle)'
             }}></div>
+            <span className="source-name">{source.short}</span>
+            <span className="source-count" style={{ color: count > 0 ? source.color : 'var(--text-tertiary)' }}>
+              {isLoading ? "···" : isError ? "×" : count}
+            </span>
           </div>
         );
       })}
@@ -426,77 +423,47 @@ function SourceGrid({ sources, status }) {
 }
 
 function NotificationCard({ item, source, index }) {
-  const [isPressed, setIsPressed] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  
   return (
-    <a 
-      href={item.url || source.url} 
-      target="_blank" 
+    <a
+      href={item.url || source.url}
+      target="_blank"
       rel="noopener noreferrer"
-      className={`notification-card ${isPressed ? "pressed" : ""} ${isHovered ? "hovered" : ""}`}
-      style={{ animationDelay: `${Math.min(index, 20) * 0.05}s` }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => { setIsHovered(false); setIsPressed(false); }}
-      onMouseDown={() => setIsPressed(true)}
-      onMouseUp={() => setIsPressed(false)}
-      onTouchStart={() => setIsPressed(true)}
-      onTouchEnd={() => setIsPressed(false)}
+      className="notif-card"
+      style={{ animationDelay: `${Math.min(index, 20) * 0.03}s` }}
     >
-      <div className="card-ripple-container">
-        <div className="card-content">
-          <div className="card-leading">
-            <div className="source-avatar" style={{ 
-              background: `${source.color}15`,
-              color: source.color 
-            }}>
-              {source.short[0]}
-            </div>
-          </div>
-          
-          <div className="card-body">
-            <div className="card-header">
-              <span className="source-label label-large" style={{ color: source.color }}>
-                {source.short}
-              </span>
-              {item.date && (
-                <>
-                  <span className="divider-dot">·</span>
-                  <time className="date-label label-large">{item.date}</time>
-                </>
-              )}
-            </div>
-            <h3 className="card-title body-large">{item.title}</h3>
-          </div>
-          
-          <div className="card-trailing">
-            <svg className="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
-          </div>
+      <div className="notif-accent" style={{ background: source.color }}></div>
+      <div className="notif-body">
+        <div className="notif-meta">
+          <span className="notif-source" style={{ color: source.color }}>{source.short}</span>
+          {item.date && (
+            <>
+              <span className="dot-sep">·</span>
+              <time className="notif-date">{item.date}</time>
+            </>
+          )}
         </div>
+        <h3 className="notif-title">{item.title}</h3>
       </div>
-      
-      <div className="card-state-layer"></div>
+      <div className="notif-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </div>
     </a>
   );
 }
 
 function LoadingCard({ index }) {
   return (
-    <div className="notification-card skeleton" style={{ animationDelay: `${index * 0.05}s` }}>
-      <div className="card-content">
-        <div className="card-leading">
-          <div className="skeleton-avatar"></div>
+    <div className="notif-card skeleton" style={{ animationDelay: `${index * 0.05}s` }}>
+      <div className="notif-accent skeleton-bar"></div>
+      <div className="notif-body">
+        <div className="notif-meta">
+          <div className="skel skel-chip"></div>
+          <div className="skel skel-date"></div>
         </div>
-        <div className="card-body">
-          <div className="skeleton-header">
-            <div className="skeleton-chip"></div>
-            <div className="skeleton-date"></div>
-          </div>
-          <div className="skeleton-title"></div>
-          <div className="skeleton-title" style={{ width: '70%' }}></div>
-        </div>
+        <div className="skel skel-title"></div>
+        <div className="skel skel-title skel-short"></div>
       </div>
     </div>
   );
@@ -505,17 +472,13 @@ function LoadingCard({ index }) {
 function EmptyState({ onRetry }) {
   return (
     <div className="empty-state">
-      <div className="empty-illustration">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <rect x="3" y="3" width="18" height="18" rx="4"/>
-          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
-        </svg>
-      </div>
-      <h3 className="headline-small">暂无通知</h3>
-      <p className="body-medium">数据源暂时不可用或站点结构发生变化</p>
-      <button className="button-filled" onClick={onRetry}>
-        <span className="button-text label-large">重新加载</span>
-      </button>
+      <svg className="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <rect x="3" y="3" width="18" height="18" rx="4"/>
+        <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+      </svg>
+      <p className="empty-title">暂无通知</p>
+      <p className="empty-desc">数据源暂时不可用或站点结构发生变化</p>
+      <button className="ghost-btn" onClick={onRetry}>重新加载</button>
     </div>
   );
 }
@@ -531,6 +494,39 @@ export default function BNUZFeed() {
   const [initialLoad, setInitialLoad] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const timerRef = useRef(null);
+
+  const getInitialTheme = () => {
+    const saved = localStorage.getItem('bnuz-theme');
+    if (saved === 'light' || saved === 'dark') return saved;
+    if (window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
+    return 'dark';
+  };
+  const [theme, setTheme] = useState(getInitialTheme);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.setAttribute('data-theme', 'light');
+    } else {
+      root.removeAttribute('data-theme');
+    }
+    localStorage.setItem('bnuz-theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: light)');
+    const handle = (e) => {
+      if (!localStorage.getItem('bnuz-theme')) setTheme(e.matches ? 'light' : 'dark');
+    };
+    mq.addEventListener('change', handle);
+    return () => mq.removeEventListener('change', handle);
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    document.documentElement.classList.add('theme-transitioning');
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 350);
+  }, []);
 
   const fetchAll = useCallback(async (silent = false) => {
     if (!silent) setInitialLoad(true);
@@ -573,152 +569,60 @@ export default function BNUZFeed() {
   return (
     <div className="app">
       <style>{`
-        /* ═══════ Material You Design Tokens ═══════ */
+        /* ═══════ Design Tokens ═══════ */
         :root {
-          /* Primary Palette */
-          --md-sys-color-primary: ${THEME.primary[40]};
-          --md-sys-color-on-primary: #FFFFFF;
-          --md-sys-color-primary-container: ${THEME.primary[90]};
-          --md-sys-color-on-primary-container: ${THEME.primary[10]};
-          
-          /* Secondary Palette */
-          --md-sys-color-secondary: ${THEME.secondary[40]};
-          --md-sys-color-on-secondary: #FFFFFF;
-          --md-sys-color-secondary-container: ${THEME.secondary[90]};
-          --md-sys-color-on-secondary-container: ${THEME.secondary[10]};
-          
-          /* Tertiary Palette */
-          --md-sys-color-tertiary: ${THEME.tertiary[40]};
-          --md-sys-color-on-tertiary: #FFFFFF;
-          --md-sys-color-tertiary-container: ${THEME.tertiary[90]};
-          --md-sys-color-on-tertiary-container: ${THEME.tertiary[10]};
-          
-          /* Surface Colors */
-          --md-sys-color-surface: #FFFBFE;
-          --md-sys-color-surface-variant: #E7E0EC;
-          --md-sys-color-on-surface: #1C1B1F;
-          --md-sys-color-on-surface-variant: #49454F;
-          --md-sys-color-background: #FFFBFE;
-          --md-sys-color-on-background: #1C1B1F;
-          
-          /* Outline */
-          --md-sys-color-outline: #79747E;
-          --md-sys-color-outline-variant: #CAC4D0;
-          
-          /* Elevation */
-          --md-sys-elevation-level0: 0 0 0 0 rgba(0,0,0,0);
-          --md-sys-elevation-level1: 0 1px 2px 0 rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
-          --md-sys-elevation-level2: 0 1px 2px 0 rgba(0,0,0,0.3), 0 2px 6px 2px rgba(0,0,0,0.15);
-          --md-sys-elevation-level3: 0 1px 3px 0 rgba(0,0,0,0.3), 0 4px 8px 3px rgba(0,0,0,0.15);
-          
-          /* Shapes */
-          --md-sys-shape-corner-none: 0px;
-          --md-sys-shape-corner-extra-small: 4px;
-          --md-sys-shape-corner-small: 8px;
-          --md-sys-shape-corner-medium: 12px;
-          --md-sys-shape-corner-large: 16px;
-          --md-sys-shape-corner-extra-large: 28px;
-          --md-sys-shape-corner-full: 50%;
-          
-          /* Motion */
-          --md-sys-motion-duration-short1: 50ms;
-          --md-sys-motion-duration-short2: 100ms;
-          --md-sys-motion-duration-short3: 150ms;
-          --md-sys-motion-duration-short4: 200ms;
-          --md-sys-motion-duration-medium1: 250ms;
-          --md-sys-motion-duration-medium2: 300ms;
-          --md-sys-motion-duration-medium4: 400ms;
-          --md-sys-motion-easing-standard: cubic-bezier(0.2, 0.0, 0.0, 1.0);
-          --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0.0, 0.0, 1.0);
-          --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1.0);
-          --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0.0, 0.8, 0.15);
+          --bg-base: #09090b;
+          --bg-card: #111113;
+          --bg-elevated: #18181b;
+          --bg-hover: #1f1f23;
+          --bg-active: #27272a;
+
+          --border-subtle: #1f1f23;
+          --border-default: #27272a;
+          --border-strong: #3f3f46;
+
+          --text-primary: #fafafa;
+          --text-secondary: #a1a1aa;
+          --text-tertiary: #71717a;
+          --text-muted: #52525b;
+
+          --chip-count-bg: rgba(255,255,255,0.1);
+
+          --radius-sm: 6px;
+          --radius-md: 8px;
+          --radius-lg: 12px;
+          --radius-xl: 16px;
+
+          --transition-fast: 150ms ease;
+          --transition-base: 200ms ease;
         }
 
-        /* ═══════ Typography ═══════ */
-        .display-large {
-          font-family: "Google Sans", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-          font-size: 57px;
-          font-weight: 400;
-          line-height: 64px;
-          letter-spacing: -0.25px;
+        /* ═══════ Light Theme ═══════ */
+        [data-theme="light"] {
+          --bg-base: #fafafa;
+          --bg-card: #ffffff;
+          --bg-elevated: #f4f4f5;
+          --bg-hover: #e4e4e7;
+          --bg-active: #d4d4d8;
+
+          --border-subtle: #e4e4e7;
+          --border-default: #d4d4d8;
+          --border-strong: #a1a1aa;
+
+          --text-primary: #18181b;
+          --text-secondary: #3f3f46;
+          --text-tertiary: #71717a;
+          --text-muted: #a1a1aa;
+
+          --chip-count-bg: rgba(0,0,0,0.06);
         }
-        .display-medium {
-          font-family: "Google Sans", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-          font-size: 45px;
-          font-weight: 400;
-          line-height: 52px;
-        }
-        .display-small {
-          font-family: "Google Sans", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-          font-size: 36px;
-          font-weight: 400;
-          line-height: 44px;
-        }
-        .headline-large {
-          font-family: "Google Sans", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-          font-size: 32px;
-          font-weight: 400;
-          line-height: 40px;
-        }
-        .headline-medium {
-          font-family: "Google Sans", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-          font-size: 28px;
-          font-weight: 400;
-          line-height: 36px;
-        }
-        .headline-small {
-          font-family: "Google Sans", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-          font-size: 24px;
-          font-weight: 400;
-          line-height: 32px;
-        }
-        .title-large {
-          font-family: "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-          font-size: 22px;
-          font-weight: 400;
-          line-height: 28px;
-        }
-        .title-medium {
-          font-family: "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-          font-size: 16px;
-          font-weight: 500;
-          line-height: 24px;
-          letter-spacing: 0.15px;
-        }
-        .title-small {
-          font-family: "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-          font-size: 14px;
-          font-weight: 500;
-          line-height: 20px;
-          letter-spacing: 0.1px;
-        }
-        .body-large {
-          font-family: "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-          font-size: 16px;
-          font-weight: 400;
-          line-height: 24px;
-          letter-spacing: 0.5px;
-        }
-        .body-medium {
-          font-family: "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-          font-size: 14px;
-          font-weight: 400;
-          line-height: 20px;
-          letter-spacing: 0.25px;
-        }
-        .label-large {
-          font-family: "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-          font-size: 14px;
-          font-weight: 500;
-          line-height: 20px;
-          letter-spacing: 0.1px;
-        }
-        .label-medium {
-          font-family: "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-          font-size: 12px;
-          font-weight: 500;
-          line-height: 16px;
-          letter-spacing: 0.5px;
+
+        html.theme-transitioning,
+        html.theme-transitioning *,
+        html.theme-transitioning *::before,
+        html.theme-transitioning *::after {
+          transition: background-color 0.3s ease, color 0.3s ease,
+                      border-color 0.3s ease !important;
         }
 
         /* ═══════ Reset & Base ═══════ */
@@ -729,9 +633,9 @@ export default function BNUZFeed() {
         }
 
         body {
-          font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-          background: var(--md-sys-color-background);
-          color: var(--md-sys-color-on-surface);
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          background: var(--bg-base);
+          color: var(--text-primary);
           line-height: 1.5;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
@@ -741,104 +645,115 @@ export default function BNUZFeed() {
           min-height: 100vh;
           display: flex;
           flex-direction: column;
-          background: var(--md-sys-color-background);
         }
 
-        /* ═══════ Top App Bar ═══════ */
-        .top-app-bar {
-          background: var(--md-sys-color-surface);
-          box-shadow: var(--md-sys-elevation-level2);
+        /* ═══════ Header ═══════ */
+        .header {
+          background: var(--bg-elevated);
+          border-bottom: 1px solid var(--border-subtle);
           position: sticky;
           top: 0;
           z-index: 100;
         }
 
-        .top-app-bar-container {
+        .header-inner {
           max-width: 840px;
           margin: 0 auto;
-          padding: 20px 16px 16px;
+          padding: 16px;
         }
 
         @media (min-width: 600px) {
-          .top-app-bar-container {
-            padding: 24px 24px 16px;
-          }
+          .header-inner { padding: 20px 24px; }
         }
 
-        .top-app-bar-content {
+        .header-top {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 16px;
         }
 
-        .brand {
+        .header-title {
+          font-size: 22px;
+          font-weight: 600;
+          line-height: 30px;
+          color: var(--text-primary);
+          letter-spacing: -0.3px;
+        }
+
+        .header-actions {
+          display: flex;
+          gap: 4px;
+        }
+
+        .header-sub {
+          margin-top: 6px;
+          font-size: 13px;
+          line-height: 20px;
+          color: var(--text-tertiary);
           display: flex;
           align-items: center;
-          gap: 16px;
+          flex-wrap: wrap;
+          gap: 0;
         }
 
-        .brand-logo {
-          width: 48px;
-          height: 48px;
-          background: var(--md-sys-color-primary-container);
-          color: var(--md-sys-color-on-primary-container);
-          border-radius: var(--md-sys-shape-corner-large);
-          display: flex;
+        .dot-sep {
+          margin: 0 6px;
+          color: var(--text-muted);
+        }
+
+        .status-loading {
+          display: inline-flex;
           align-items: center;
-          justify-content: center;
-          font-family: "Google Sans", sans-serif;
-          font-size: 24px;
-          font-weight: 500;
-          box-shadow: var(--md-sys-elevation-level1);
+          gap: 6px;
         }
 
-        .brand-text h1 {
-          color: var(--md-sys-color-on-surface);
+        .pulse-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--text-secondary);
+          animation: pulse 1.5s ease-in-out infinite;
         }
 
-        .brand-text p {
-          color: var(--md-sys-color-on-surface-variant);
-          margin-top: 2px;
-        }
-
-        .top-app-bar-actions {
-          display: flex;
-          gap: 8px;
-        }
-
-        .icon-button {
-          width: 40px;
-          height: 40px;
-          border: none;
+        /* ═══════ Icon Buttons ═══════ */
+        .icon-btn {
+          width: 36px;
+          height: 36px;
+          border: 1px solid var(--border-default);
           background: transparent;
-          border-radius: var(--md-sys-shape-corner-full);
+          border-radius: var(--radius-md);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: var(--md-sys-color-on-surface-variant);
+          color: var(--text-secondary);
           cursor: pointer;
-          transition: all var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
-          position: relative;
-          overflow: hidden;
+          transition: all var(--transition-fast);
         }
 
-        .icon-button:hover {
-          background: rgba(28, 27, 31, 0.08);
+        .icon-btn:hover {
+          background: var(--bg-hover);
+          color: var(--text-primary);
+          border-color: var(--border-strong);
         }
 
-        .icon-button:active {
-          background: rgba(28, 27, 31, 0.12);
+        .icon-btn:active {
+          background: var(--bg-active);
         }
 
-        .icon-button.selected {
-          background: var(--md-sys-color-secondary-container);
-          color: var(--md-sys-color-on-secondary-container);
+        .icon-btn:disabled {
+          opacity: 0.4;
+          cursor: default;
         }
 
-        .icon-button svg {
-          width: 24px;
-          height: 24px;
+        .icon-btn-active {
+          background: var(--bg-active);
+          color: var(--text-primary);
+          border-color: var(--border-strong);
+        }
+
+        .icon-btn svg {
+          width: 18px;
+          height: 18px;
         }
 
         .spin {
@@ -850,49 +765,26 @@ export default function BNUZFeed() {
           to { transform: rotate(360deg); }
         }
 
-        .refresh-status {
-          margin-top: 12px;
-          padding-left: 64px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: var(--md-sys-color-on-surface-variant);
-        }
-
-        .loading-dot {
-          width: 6px;
-          height: 6px;
-          background: var(--md-sys-color-primary);
-          border-radius: 50%;
-          animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        .status-indicator {
-          width: 8px;
-          height: 8px;
-          background: #22C55E;
-          border-radius: 50%;
-        }
-
         @keyframes pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(0.8); }
+          50% { opacity: 0.4; transform: scale(0.75); }
         }
 
         /* ═══════ Source Grid ═══════ */
         .source-grid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 8px;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 6px;
           padding: 12px 16px;
-          background: var(--md-sys-color-surface-variant);
-          border-bottom: 1px solid var(--md-sys-color-outline-variant);
+          max-width: 840px;
+          margin: 0 auto;
+          width: 100%;
         }
 
         @media (min-width: 600px) {
           .source-grid {
-            grid-template-columns: repeat(8, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 8px;
             padding: 16px 24px;
           }
         }
@@ -901,79 +793,65 @@ export default function BNUZFeed() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 8px;
-          padding: 12px 8px;
-          background: var(--md-sys-color-surface);
-          border-radius: var(--md-sys-shape-corner-large);
-          box-shadow: var(--md-sys-elevation-level1);
-          transition: all var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+          gap: 4px;
+          padding: 10px 4px 8px;
+          background: var(--bg-card);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-lg);
           position: relative;
           overflow: hidden;
+          transition: border-color var(--transition-fast);
         }
 
         .source-card:hover {
-          box-shadow: var(--md-sys-elevation-level2);
-          transform: translateY(-1px);
+          border-color: var(--border-default);
         }
 
-        .source-icon {
-          width: 36px;
-          height: 36px;
-          border-radius: var(--md-sys-shape-corner-full);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 16px;
-          font-weight: 500;
-        }
-
-        .source-info {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 2px;
+        .source-bar {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
         }
 
         .source-name {
-          color: var(--md-sys-color-on-surface-variant);
+          font-size: 11px;
+          font-weight: 500;
+          color: var(--text-tertiary);
+          line-height: 16px;
         }
 
         .source-count {
-          color: var(--md-sys-color-on-surface);
+          font-size: 18px;
+          font-weight: 600;
+          line-height: 24px;
         }
 
-        .source-indicator {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: 3px;
-          transition: background var(--md-sys-motion-duration-short2);
+        /* ═══════ Chips ═══════ */
+        .chips-bar {
+          border-bottom: 1px solid var(--border-subtle);
+          padding: 10px 0;
         }
 
-        /* ═══════ Source Chips ═══════ */
-        .source-chips-container {
-          background: var(--md-sys-color-surface);
-          border-bottom: 1px solid var(--md-sys-color-outline-variant);
-          padding: 12px 0;
-        }
-
-        .source-chips-scroll {
+        .chips-scroll {
           display: flex;
-          gap: 8px;
+          gap: 6px;
           overflow-x: auto;
-          padding: 4px 16px;
+          padding: 2px 16px;
           scrollbar-width: none;
           -ms-overflow-style: none;
+          max-width: 840px;
+          margin: 0 auto;
         }
 
-        .source-chips-scroll::-webkit-scrollbar {
+        .chips-scroll::-webkit-scrollbar {
           display: none;
         }
 
         @media (min-width: 600px) {
-          .source-chips-scroll {
-            padding: 4px 24px;
+          .chips-scroll {
+            padding: 2px 24px;
             flex-wrap: wrap;
           }
         }
@@ -981,239 +859,198 @@ export default function BNUZFeed() {
         .chip {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 8px 16px;
-          border: 1px solid var(--md-sys-color-outline);
-          background: var(--md-sys-color-surface);
-          border-radius: var(--md-sys-shape-corner-small);
+          gap: 6px;
+          padding: 6px 14px;
+          border: 1px solid var(--border-default);
+          background: transparent;
+          border-radius: var(--radius-xl);
           cursor: pointer;
-          transition: all var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+          transition: all var(--transition-fast);
           white-space: nowrap;
-          height: 36px;
+          font-family: inherit;
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--text-secondary);
+          line-height: 20px;
         }
 
         .chip:hover {
-          background: rgba(28, 27, 31, 0.05);
+          background: var(--bg-hover);
+          border-color: var(--border-strong);
         }
 
-        .chip-outlined {
-          background: transparent;
-          color: var(--md-sys-color-on-surface-variant);
+        .chip-active {
+          background: var(--text-primary);
+          color: var(--bg-base);
+          border-color: var(--text-primary);
         }
 
-        .chip-filled {
-          background: var(--md-sys-color-primary);
-          color: var(--md-sys-color-on-primary);
-          border-color: var(--md-sys-color-primary);
+        .chip-active:hover {
+          opacity: 0.9;
         }
 
         .chip-dot {
-          width: 8px;
-          height: 8px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
+          flex-shrink: 0;
         }
 
-        .chip-badge {
-          padding: 2px 8px;
-          border-radius: var(--md-sys-shape-corner-small);
-          font-size: 12px;
-          font-weight: 500;
+        .chip-count {
+          padding: 1px 7px;
+          border-radius: var(--radius-sm);
+          font-size: 11px;
+          font-weight: 600;
+          background: var(--chip-count-bg);
+          color: var(--text-secondary);
         }
 
-        /* ═══════ Notification Cards ═══════ */
-        .notifications-list {
+        /* ═══════ Notifications ═══════ */
+        .notif-list {
           max-width: 840px;
           margin: 0 auto;
-          padding: 16px;
+          padding: 12px 16px;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 6px;
+          width: 100%;
         }
 
         @media (min-width: 600px) {
-          .notifications-list {
-            padding: 24px;
-            gap: 16px;
+          .notif-list {
+            padding: 16px 24px;
+            gap: 8px;
           }
         }
 
-        .notification-card {
-          display: block;
-          background: var(--md-sys-color-surface);
-          border-radius: var(--md-sys-shape-corner-extra-large);
-          box-shadow: var(--md-sys-elevation-level1);
+        .notif-card {
+          display: flex;
+          align-items: stretch;
+          background: var(--bg-card);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-md);
           text-decoration: none;
           color: inherit;
-          position: relative;
           overflow: hidden;
-          transition: all var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-emphasized);
-          animation: enter-card 0.4s var(--md-sys-motion-easing-emphasized-decelerate) both;
+          transition: background var(--transition-fast), border-color var(--transition-fast);
+          animation: enter-card 0.3s ease both;
           opacity: 0;
         }
 
         @keyframes enter-card {
           from {
             opacity: 0;
-            transform: translateY(20px) scale(0.98);
+            transform: translateY(8px);
           }
           to {
             opacity: 1;
-            transform: translateY(0) scale(1);
+            transform: translateY(0);
           }
         }
 
-        .notification-card:hover {
-          box-shadow: var(--md-sys-elevation-level2);
-          transform: translateY(-2px);
+        .notif-card:hover {
+          background: var(--bg-hover);
+          border-color: var(--border-default);
         }
 
-        .notification-card.hovered .card-state-layer {
-          opacity: 0.08;
-        }
-
-        .notification-card.pressed .card-state-layer {
-          opacity: 0.12;
-        }
-
-        .notification-card.pressed {
-          transform: scale(0.98);
-        }
-
-        .card-ripple-container {
-          position: relative;
-          z-index: 1;
-        }
-
-        .card-content {
-          display: flex;
-          align-items: flex-start;
-          gap: 16px;
-          padding: 16px;
-        }
-
-        .card-leading {
+        .notif-accent {
+          width: 3px;
           flex-shrink: 0;
         }
 
-        .source-avatar {
-          width: 48px;
-          height: 48px;
-          border-radius: var(--md-sys-shape-corner-full);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 20px;
-          font-weight: 500;
-        }
-
-        .card-body {
+        .notif-body {
           flex: 1;
           min-width: 0;
-          padding-top: 4px;
+          padding: 12px 12px 12px 14px;
         }
 
-        .card-header {
+        .notif-meta {
           display: flex;
           align-items: center;
-          gap: 8px;
-          margin-bottom: 8px;
+          gap: 0;
+          margin-bottom: 4px;
+          font-size: 13px;
+          line-height: 20px;
         }
 
-        .source-label {
+        .notif-source {
           font-weight: 600;
         }
 
-        .divider-dot {
-          color: var(--md-sys-color-outline);
+        .notif-date {
+          color: var(--text-tertiary);
+          font-variant-numeric: tabular-nums;
         }
 
-        .date-label {
-          color: var(--md-sys-color-on-surface-variant);
-        }
-
-        .card-title {
-          color: var(--md-sys-color-on-surface);
+        .notif-title {
+          font-size: 15px;
+          font-weight: 400;
+          line-height: 22px;
+          color: var(--text-primary);
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
-          line-height: 1.5;
         }
 
-        .card-trailing {
+        .notif-arrow {
           flex-shrink: 0;
-          padding-top: 12px;
+          display: flex;
+          align-items: center;
+          padding: 0 12px;
+          color: var(--text-muted);
+          transition: all var(--transition-fast);
         }
 
-        .chevron {
-          width: 24px;
-          height: 24px;
-          color: var(--md-sys-color-outline);
-          transition: transform var(--md-sys-motion-duration-short2);
+        .notif-arrow svg {
+          width: 16px;
+          height: 16px;
+          transition: transform var(--transition-fast);
         }
 
-        .notification-card:hover .chevron {
-          transform: translateX(4px);
-          color: var(--md-sys-color-on-surface-variant);
+        .notif-card:hover .notif-arrow {
+          color: var(--text-tertiary);
         }
 
-        .card-state-layer {
-          position: absolute;
-          inset: 0;
-          background: var(--md-sys-color-on-surface);
-          opacity: 0;
-          transition: opacity var(--md-sys-motion-duration-short2);
-          pointer-events: none;
+        .notif-card:hover .notif-arrow svg {
+          transform: translateX(3px);
         }
 
-        /* ═══════ Skeleton Loading ═══════ */
+        /* ═══════ Skeleton ═══════ */
         .skeleton {
           pointer-events: none;
         }
 
-        .skeleton-avatar {
-          width: 48px;
-          height: 48px;
-          border-radius: 50%;
-          background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, rgba(255,255,255,0.5) 50%, var(--md-sys-color-surface-variant) 75%);
-          background-size: 200% 100%;
-          animation: shimmer 1.5s infinite;
+        .skeleton-bar {
+          background: var(--bg-hover) !important;
         }
 
-        .skeleton-header {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 12px;
-        }
-
-        .skeleton-chip {
-          width: 60px;
-          height: 20px;
-          border-radius: var(--md-sys-shape-corner-small);
-          background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, rgba(255,255,255,0.5) 50%, var(--md-sys-color-surface-variant) 75%);
-          background-size: 200% 100%;
-          animation: shimmer 1.5s infinite;
-        }
-
-        .skeleton-date {
-          width: 80px;
-          height: 16px;
+        .skel {
           border-radius: 4px;
-          background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, rgba(255,255,255,0.5) 50%, var(--md-sys-color-surface-variant) 75%);
+          background: linear-gradient(90deg, var(--bg-hover) 25%, var(--bg-active) 50%, var(--bg-hover) 75%);
           background-size: 200% 100%;
           animation: shimmer 1.5s infinite;
+        }
+
+        .skel-chip {
+          width: 52px;
+          height: 16px;
+        }
+
+        .skel-date {
+          width: 72px;
+          height: 16px;
           animation-delay: 0.1s;
         }
 
-        .skeleton-title {
-          height: 20px;
-          border-radius: 4px;
-          background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, rgba(255,255,255,0.5) 50%, var(--md-sys-color-surface-variant) 75%);
-          background-size: 200% 100%;
-          animation: shimmer 1.5s infinite;
-          animation-delay: 0.2s;
-          margin-bottom: 8px;
+        .skel-title {
+          height: 18px;
+          margin-top: 8px;
+          width: 100%;
+        }
+
+        .skel-short {
+          width: 65%;
         }
 
         @keyframes shimmer {
@@ -1229,85 +1066,86 @@ export default function BNUZFeed() {
           justify-content: center;
           padding: 64px 24px;
           text-align: center;
-          animation: fade-in 0.5s var(--md-sys-motion-easing-emphasized-decelerate);
+          animation: fade-in 0.4s ease;
         }
 
         @keyframes fade-in {
-          from { opacity: 0; transform: translateY(20px); }
+          from { opacity: 0; transform: translateY(12px); }
           to { opacity: 1; transform: translateY(0); }
         }
 
-        .empty-illustration {
-          width: 120px;
-          height: 120px;
-          color: var(--md-sys-color-outline);
-          margin-bottom: 24px;
+        .empty-icon {
+          width: 56px;
+          height: 56px;
+          color: var(--text-muted);
+          margin-bottom: 20px;
         }
 
-        .empty-illustration svg {
-          width: 100%;
-          height: 100%;
+        .empty-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--text-primary);
+          margin-bottom: 6px;
         }
 
-        .empty-state h3 {
-          color: var(--md-sys-color-on-surface);
-          margin-bottom: 8px;
+        .empty-desc {
+          font-size: 13px;
+          color: var(--text-tertiary);
+          margin-bottom: 20px;
+          max-width: 260px;
         }
 
-        .empty-state p {
-          color: var(--md-sys-color-on-surface-variant);
-          margin-bottom: 24px;
-          max-width: 280px;
-        }
-
-        .button-filled {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 12px 24px;
-          background: var(--md-sys-color-primary);
-          color: var(--md-sys-color-on-primary);
-          border: none;
-          border-radius: var(--md-sys-shape-corner-full);
+        .ghost-btn {
+          padding: 8px 20px;
+          border: 1px solid var(--border-default);
+          background: transparent;
+          color: var(--text-secondary);
+          border-radius: var(--radius-md);
+          font-family: inherit;
+          font-size: 13px;
+          font-weight: 500;
           cursor: pointer;
-          transition: all var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
-          box-shadow: var(--md-sys-elevation-level1);
+          transition: all var(--transition-fast);
         }
 
-        .button-filled:hover {
-          box-shadow: var(--md-sys-elevation-level2);
+        .ghost-btn:hover {
+          background: var(--bg-hover);
+          border-color: var(--border-strong);
+          color: var(--text-primary);
         }
 
-        .button-filled:active {
-          transform: scale(0.98);
+        .ghost-btn:active {
+          background: var(--bg-active);
         }
 
         /* ═══════ Footer ═══════ */
-        footer {
+        .app-footer {
           margin-top: auto;
-          padding: 24px;
+          padding: 20px 16px;
           text-align: center;
-          color: var(--md-sys-color-on-surface-variant);
-          border-top: 1px solid var(--md-sys-color-outline-variant);
+          border-top: 1px solid var(--border-subtle);
         }
 
-        footer p {
+        .app-footer p {
           font-size: 12px;
-          letter-spacing: 0.4px;
+          color: var(--text-muted);
+          letter-spacing: 0.3px;
         }
       `}</style>
 
-      <TopAppBar 
+      <TopAppBar
         lastRefresh={lastRefresh}
         refreshing={refreshing}
         autoRefresh={autoRefresh}
         onAutoRefreshToggle={() => setAutoRefresh(!autoRefresh)}
         onRefresh={() => fetchAll(false)}
+        theme={theme}
+        onThemeToggle={toggleTheme}
       />
 
       <SourceGrid sources={SOURCES} status={sourceStatus} />
 
-      <SourceChips 
+      <SourceChips
         sources={SOURCES}
         activeFilter={activeFilter}
         onFilterChange={setActiveFilter}
@@ -1315,7 +1153,7 @@ export default function BNUZFeed() {
       />
 
       <main style={{ flex: 1 }}>
-        <div className="notifications-list">
+        <div className="notif-list">
           {initialLoad && sorted.length === 0 ? (
             [0, 1, 2, 3, 4, 5].map(i => <LoadingCard key={i} index={i} />)
           ) : sorted.length === 0 ? (
@@ -1329,8 +1167,8 @@ export default function BNUZFeed() {
         </div>
       </main>
 
-      <footer>
-        <p className="label-medium">数据直接来自各站点 HTML · 纯前端解析</p>
+      <footer className="app-footer">
+        <p>数据直接来自各站点 HTML · 纯前端解析</p>
       </footer>
     </div>
   );
