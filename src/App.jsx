@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 const SOURCES = [
   { id: "tzgs", name: "通知公示", short: "校区通知", url: "https://www.bnuzh.edu.cn/tzgs/index.htm", base: "https://www.bnuzh.edu.cn", color: "#0066FF", tone: 40 },
   { id: "jwb", name: "教务部", short: "教务", url: "https://jwb.bnuzh.edu.cn/tzgg/index.htm", base: "https://jwb.bnuzh.edu.cn", color: "#00C853", tone: 40 },
+  { id: "sjjx", name: "实践教学", short: "实践", url: "https://jwb.bnuzh.edu.cn/sjjx/index.htm", base: "https://jwb.bnuzh.edu.cn/sjjx", color: "#FF9800", tone: 40 },
   { id: "youth", name: "共青团委员会", short: "团委", url: "https://youth.bnuzh.edu.cn/tzgg/index.htm", base: "https://youth.bnuzh.edu.cn", color: "#FF6D00", tone: 40 },
   { id: "ht", name: "会同书院", short: "书院", url: "https://ht.bnuzh.edu.cn/tzgg/index.htm", base: "https://ht.bnuzh.edu.cn", color: "#AA00FF", tone: 40 },
   { id: "io", name: "国际交流与合作办公室", short: "国际处", url: "https://io.bnuzh.edu.cn/xxgg/index.htm", base: "https://io.bnuzh.edu.cn", color: "#FF1744", tone: 40 },
@@ -156,6 +157,7 @@ async function decodeHtml(arrayBuffer, sourceId) {
 const SOURCE_SELECTORS = {
   tzgs: { listSelector: ".bnuh-list20 li, .bnuh-list21 li", titleFrom: "a", dateFrom: "span" },
   jwb: { listSelector: "li.line", titleFrom: "a", dateFrom: "span.text-muted, .fr.text-muted", useTitleAttr: true },
+  sjjx: { listSelector: ".article-list .boxlist li", titleFrom: "a span", dateFrom: ".fr.text-muted" },
   youth: { listSelector: "li.item", titleFrom: ".title", dateFrom: "a", dateRegex: /(\d{4}\/\d{2}\/\d{2})/, useTitleAttr: true },
   ht: { listSelector: ".article-list li", titleFrom: "a .title", dateFrom: "a", dateRegex: /(\d{4}\/\d{2}\/\d{2})/ },
   io: { listSelector: "li", titleFrom: ".title", dateFrom: ".time", useTitleAttr: true },
