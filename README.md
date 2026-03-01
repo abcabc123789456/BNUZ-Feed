@@ -41,7 +41,7 @@ npm run dev
 npm run build
 ```
 
-##实现方法
+## 实现方法
 
 此网站完全使用 Claude Opus/Sonnet 4.6 和 Kimi K2.5 编写。
 
