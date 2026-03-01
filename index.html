@@ -15,7 +15,7 @@
     <script>
       (function() {
         var s = localStorage.getItem('bnuz-theme');
-        var t = s || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        var t = (s === 'light' || s === 'dark') ? s : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
         if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
       })();
     </script>

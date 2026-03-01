@@ -284,7 +284,8 @@ async function fetchSource(source) {
 
 /* ═══════ UI Components ═══════ */
 
-function TopAppBar({ lastRefresh, refreshing, autoRefresh, onAutoRefreshToggle, onRefresh, theme, onThemeToggle }) {
+function TopAppBar({ lastRefresh, refreshing, autoRefresh, onAutoRefreshToggle, onRefresh, themeMode, onThemeToggle }) {
+  const themeTitles = { system: '跟随系统 — 点击切换到浅色', light: '浅色模式 — 点击切换到深色', dark: '深色模式 — 点击切换为跟随系统' };
   return (
     <header className="header">
       <div className="header-inner">
@@ -294,9 +295,14 @@ function TopAppBar({ lastRefresh, refreshing, autoRefresh, onAutoRefreshToggle, 
             <button
               className="icon-btn"
               onClick={onThemeToggle}
-              title={theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'}
+              title={themeTitles[themeMode]}
             >
-              {theme === 'dark' ? (
+              {themeMode === 'system' ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2"/>
+                  <path d="M8 21h8M12 17v4"/>
+                </svg>
+              ) : themeMode === 'dark' ? (
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
                 </svg>
@@ -495,14 +501,27 @@ export default function BNUZFeed() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const timerRef = useRef(null);
 
-  const getInitialTheme = () => {
+  // themeMode: 'system' | 'light' | 'dark'
+  const getInitialMode = () => {
     const saved = localStorage.getItem('bnuz-theme');
     if (saved === 'light' || saved === 'dark') return saved;
-    if (window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
-    return 'dark';
+    return 'system';
   };
-  const [theme, setTheme] = useState(getInitialTheme);
+  const [themeMode, setThemeMode] = useState(getInitialMode);
+  const [systemDark, setSystemDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches);
 
+  // Resolved theme: what actually gets applied to the page
+  const theme = themeMode === 'system' ? (systemDark ? 'dark' : 'light') : themeMode;
+
+  // Listen for OS color scheme changes
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handle = (e) => setSystemDark(e.matches);
+    mq.addEventListener('change', handle);
+    return () => mq.removeEventListener('change', handle);
+  }, []);
+
+  // Apply resolved theme to DOM
   useEffect(() => {
     const root = document.documentElement;
     if (theme === 'light') {
@@ -510,21 +529,21 @@ export default function BNUZFeed() {
     } else {
       root.removeAttribute('data-theme');
     }
-    localStorage.setItem('bnuz-theme', theme);
   }, [theme]);
 
+  // Persist mode preference
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: light)');
-    const handle = (e) => {
-      if (!localStorage.getItem('bnuz-theme')) setTheme(e.matches ? 'light' : 'dark');
-    };
-    mq.addEventListener('change', handle);
-    return () => mq.removeEventListener('change', handle);
-  }, []);
+    if (themeMode === 'system') {
+      localStorage.removeItem('bnuz-theme');
+    } else {
+      localStorage.setItem('bnuz-theme', themeMode);
+    }
+  }, [themeMode]);
 
+  // Cycle: system → light → dark → system
   const toggleTheme = useCallback(() => {
     document.documentElement.classList.add('theme-transitioning');
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    setThemeMode(prev => prev === 'system' ? 'light' : prev === 'light' ? 'dark' : 'system');
     setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 350);
   }, []);
 
@@ -1139,7 +1158,7 @@ export default function BNUZFeed() {
         autoRefresh={autoRefresh}
         onAutoRefreshToggle={() => setAutoRefresh(!autoRefresh)}
         onRefresh={() => fetchAll(false)}
-        theme={theme}
+        themeMode={themeMode}
         onThemeToggle={toggleTheme}
       />
 
