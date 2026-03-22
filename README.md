@@ -1,4 +1,4 @@
-> **项目迁移说明** 该仓库已转为旧版本入口，最新版本请前往 [BNUZ Feed V2](https://github.com/abcabc123789456/BNUZ-Feed-V2)  
+> **项目迁移说明** 该项目已被重构，旧版本已归档，最新版本请前往 [BNUZ Feed V2](https://github.com/abcabc123789456/BNUZ-Feed-V2)  
 > **V2 在线访问** https://abcabc123789456.github.io/BNUZ-Feed-V2/
 
 # BNUZ Feed
