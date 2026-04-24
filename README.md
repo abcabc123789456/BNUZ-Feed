@@ -1,11 +1,11 @@
-> **项目迁移说明** 该项目已被重构，旧版本已归档，最新版本请前往 [BNUZ Feed V2](https://github.com/abcabc123789456/BNUZ-Feed-V2)  
-> **V2 在线访问** https://abcabc123789456.github.io/BNUZ-Feed-V2/
+> **项目迁移说明** 该项目已被重构，旧版本已归档，最新版本请前往 [BNUZ Feed V2](https://github.com/Gliese-876/BNUZ-Feed-V2)  
+> **V2 在线访问** https://gliese-876.github.io/BNUZ-Feed-V2/
 
 # BNUZ Feed
 
 北京师范大学珠海校区通知聚合平台，实时抓取 9 个官方站点的最新通知。
 
-**在线访问** https://abcabc123789456.github.io/BNUZ-Feed/
+**在线访问** https://gliese-876.github.io/BNUZ-Feed/
 
 ## 特性
 
@@ -19,7 +19,7 @@
 
 | 站点 | 名称 | 链接 |
 |------|------|------|
-| 校区通知 | 通知公示 | [tzgs](https://www.bnuzh.edu.cn/tzgs/index.htm) |
+| 校区通知 | 通知公告 | [tzgs](https://www.bnuzh.edu.cn/tzgs/index.htm) |
 | 教务 | 教务部 | [jwb](https://jwb.bnuzh.edu.cn/tzgg/index.htm) |
 | 实践 | 实践教学 | [sjjx](https://jwb.bnuzh.edu.cn/sjjx/index.htm) |
 | 团委 | 共青团委员会 | [youth](https://youth.bnuzh.edu.cn/tzgg/index.htm) |
@@ -32,7 +32,7 @@
 ## 快速开始
 
 ```bash
-git clone https://github.com/abcabc123789456/BNUZ-Feed.git
+git clone https://github.com/Gliese-876/BNUZ-Feed.git
 cd BNUZ-Feed
 npm install
 npm run dev
